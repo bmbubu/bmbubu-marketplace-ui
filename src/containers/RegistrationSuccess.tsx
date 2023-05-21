@@ -1,4 +1,7 @@
+import { Link, useNavigate } from "react-router-dom";
+
 export const RegistrationSuccess = () => {
+  const navigate = useNavigate();
   return (
     <section className="inner-page mt-5">
       <div className="container mt-5">
@@ -23,9 +26,12 @@ export const RegistrationSuccess = () => {
                       professional templates to grow your business.
                     </p>
                     <div className="form-group my-3">
-                      <button className="btn btn-primary-custom btn-block">
+                      <Link
+                        className="btn btn-primary-custom btn-block"
+                        to={"/"}
+                      >
                         Sign in to get started
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>

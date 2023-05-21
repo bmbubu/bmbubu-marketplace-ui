@@ -80,7 +80,7 @@ export const Login = () => {
           const accessToken = response?.data?.accessToken;
           setAuth({ user: email, accessToken });
           clearInputs();
-          window.location.href = `http://localhost:3000/id=${email}`;
+          window.location.href = `http://localhost:3000/access=${email}`;
         }
       } catch (error) {
         //console.log(error);

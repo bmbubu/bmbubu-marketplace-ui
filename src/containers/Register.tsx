@@ -1,72 +1,62 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { RegisterRequestDto } from "../lib/data-transfer-object/register.dto";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  RegisterFormDto,
+  RegisterRequestDto,
+} from "../lib/data-transfer-object/register.dto";
 import {
   REGISTRATION_SEE_PRIVACY,
   REGISTRATION_TERMS,
   REGISTRATION_USE_OF_DATA,
 } from "../lib/common/tms";
-import { usePost } from "../lib/hooks/usePost";
 import { REGISTER_URL } from "../lib/common/api-url";
+import axios from "axios";
+import { RegistrationError, StatusCode } from "../lib/common/error";
+import { useFormik } from "formik";
+import {
+  convertFormDataToRequestDto,
+  registerFormData,
+} from "../lib/helper/registration.helper";
+import * as Yup from "yup";
 
 export const Register = () => {
-  const initialValues: RegisterRequestDto = {
+  const initialValues: RegisterFormDto = {
     firstName: "",
     lastName: "",
     email: "",
     username: "",
     password: "",
+    confirmPassword: "",
     contactNo: "",
     zipCode: "",
-    roleid: 2,
+    isAgreeToTerms: false,
+    isAgreeToUseData: false,
   };
+  const formik = useFormik({
+    initialValues,
+    validationSchema: Yup.object({
+      firstName: Yup.string().required(
+        RegistrationError.FIRST_NAME_IS_REQUIRED
+      ),
+      lastName: Yup.string().required(RegistrationError.LAST_NAME_IS_REQUIRED),
+      email: Yup.string().required(RegistrationError.EMAIL_IS_REQUIRED),
+      password: Yup.string().required(RegistrationError.PASSWORD_IS_REQUIRED),
+      confirmPassword: Yup.string().required(
+        RegistrationError.CONFIRM_PASSWORD_IS_REQUIRED
+      ),
+    }),
+    onSubmit: async (values) => {
+      const requestDto = convertFormDataToRequestDto(values);
+      const response = await registerFormData(requestDto);
+      if (response === StatusCode.Created) navigate("/registration-success");
+    },
+  });
+  const navigate = useNavigate();
 
-  const [registerDto, setRegisterDto] =
-    useState<RegisterRequestDto>(initialValues);
-
-  const [terms, setTerms] = useState<boolean>(false);
-  const [useOfData, setUseOfData] = useState<boolean>(false);
-
-  const registerUser = usePost<unknown>();
-
-  const onSignUp = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const onSignUp = async (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     event.preventDefault();
-
-    //registerUser(REGISTER_URL, registerDto);
-    console.log("foo");
-    <Link to="registration-success" />;
-  };
-
-  const onInputTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRegisterDto({ ...registerDto, [event.target.id]: event.target.value });
-  };
-
-  const onTerms = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      setTerms(true);
-    } else {
-      setTerms(false);
-    }
-  };
-
-  const onUseData = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      setUseOfData(true);
-    } else {
-      setUseOfData(false);
-    }
-  };
-
-  const validateForm = (): boolean => {
-    let canProceed: boolean = false;
-    if (!terms) {
-      // Error that Terms should Checked
-      canProceed = false;
-    }
-
-    // Password and Confirm Password is not match
-
-    return canProceed;
   };
 
   useEffect(() => {
@@ -92,7 +82,7 @@ export const Register = () => {
                       </small>
                     </p>
                     <hr />
-                    <form className="mt-0">
+                    <form className="mt-0" onSubmit={formik.handleSubmit}>
                       <section id="features" className="features m-0 p-0">
                         <div className="row feture-tabs m-0 p-0">
                           <div className="col-12 m-0 p-0">
@@ -130,29 +120,51 @@ export const Register = () => {
                                     type="text"
                                     className="form-control"
                                     id="firstName"
+                                    name="firstName"
                                     placeholder="First Name"
-                                    value={registerDto.firstName}
-                                    onChange={(e) => onInputTextChange(e)}
+                                    value={formik.values.firstName}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                   />
+                                  <small
+                                    id="first_name_message"
+                                    className="form-text text-danger"
+                                  >
+                                    {formik.errors.firstName &&
+                                      formik.touched.firstName &&
+                                      formik.errors.firstName}
+                                  </small>
                                 </div>
                                 <div className="form-group mx-1 my-2">
                                   <input
                                     type="text"
                                     className="form-control"
                                     id="lastName"
+                                    name="lastName"
                                     placeholder="Last Name"
-                                    value={registerDto.lastName}
-                                    onChange={(e) => onInputTextChange(e)}
+                                    value={formik.values.lastName}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                   />
+                                  <small
+                                    id="first_name_message"
+                                    className="form-text text-danger"
+                                  >
+                                    {formik.errors.lastName &&
+                                      formik.touched.lastName &&
+                                      formik.errors.lastName}
+                                  </small>
                                 </div>
                                 <div className="form-group mx-1 my-2">
                                   <input
                                     type="text"
                                     className="form-control"
                                     id="contactNo"
+                                    name="contactNo"
                                     placeholder="+1 5589 55488 55"
-                                    value={registerDto.contactNo}
-                                    onChange={(e) => onInputTextChange(e)}
+                                    value={formik.values.contactNo}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                   />
                                 </div>
                                 <div className="form-group mx-1 my-2">
@@ -160,9 +172,11 @@ export const Register = () => {
                                     type="text"
                                     className="form-control"
                                     id="zipCode"
+                                    name="zipCode"
                                     placeholder="United States with Zip Code"
-                                    value={registerDto.zipCode}
-                                    onChange={(e) => onInputTextChange(e)}
+                                    value={formik.values.zipCode}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                   />
                                 </div>
                               </div>
@@ -176,37 +190,70 @@ export const Register = () => {
                                     type="email"
                                     className="form-control"
                                     id="email"
+                                    name="email"
                                     placeholder="email@example.com"
-                                    value={registerDto.email}
-                                    onChange={(e) => onInputTextChange(e)}
+                                    value={formik.values.email}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                   />
+                                  <small
+                                    id="first_name_message"
+                                    className="form-text text-danger"
+                                  >
+                                    {formik.errors.email &&
+                                      formik.touched.email &&
+                                      formik.errors.email}
+                                  </small>
                                 </div>
                                 <div className="form-group mx-1 my-2">
                                   <input
                                     type="password"
                                     className="form-control"
                                     id="password"
+                                    name="password"
                                     placeholder="Password"
-                                    value={registerDto.password}
-                                    onChange={(e) => onInputTextChange(e)}
+                                    value={formik.values.password}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                   />
+                                  <small
+                                    id="first_name_message"
+                                    className="form-text text-danger"
+                                  >
+                                    {formik.errors.password &&
+                                      formik.touched.password &&
+                                      formik.errors.password}
+                                  </small>
                                 </div>
                                 <div className="form-group mx-1 my-2">
                                   <input
                                     type="password"
                                     className="form-control"
-                                    id="confirm_password"
+                                    id="confirmPassword"
+                                    name="confirmPassword"
                                     placeholder="Confirm Password"
+                                    value={formik.values.confirmPassword}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                   />
+                                  <small
+                                    id="first_name_message"
+                                    className="form-text text-danger"
+                                  >
+                                    {formik.errors.confirmPassword &&
+                                      formik.touched.confirmPassword &&
+                                      formik.errors.confirmPassword}
+                                  </small>
                                 </div>
 
                                 <div className="form-group mx-1 my-2">
                                   <input
                                     type="checkbox"
                                     className="form-check-input"
-                                    id="terms-of-service"
-                                    checked={terms}
-                                    onChange={(e) => onTerms(e)}
+                                    id="isAgreeToTerms"
+                                    name="isAgreeToTerms"
+                                    checked={formik.values.isAgreeToTerms}
+                                    onChange={formik.handleChange}
                                   />
                                   &nbsp;
                                   <label
@@ -220,9 +267,9 @@ export const Register = () => {
                                   <input
                                     type="checkbox"
                                     className="form-check-input"
-                                    id="privacy-policy"
-                                    checked={useOfData}
-                                    onChange={(e) => onUseData(e)}
+                                    id="isAgreeToUseData"
+                                    checked={formik.values.isAgreeToUseData}
+                                    onChange={formik.handleChange}
                                   />
                                   &nbsp;
                                   <label
@@ -237,8 +284,8 @@ export const Register = () => {
                                 </div>
                                 <div className="form-group my-3">
                                   <button
+                                    type="submit"
                                     className="btn btn-primary-custom btn-block"
-                                    onClick={(e) => onSignUp(e)}
                                   >
                                     Sign up
                                   </button>
