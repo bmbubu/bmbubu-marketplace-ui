@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+
 export const AppNavbar = () => {
   return (
     <nav id="navbar" className="navbar">
@@ -41,9 +43,9 @@ export const AppNavbar = () => {
           </a>
         </li>
         <li>
-          <a className="getstarted scrollto" href="#about">
+          <NavLink className="getstarted scrollto" to={"login"}>
             Dashboard
-          </a>
+          </NavLink>
         </li>
       </ul>
       <i className="bi bi-list mobile-nav-toggle"></i>
