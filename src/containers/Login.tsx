@@ -124,7 +124,7 @@ export const Login = () => {
                     <p className="text-muted">
                       <small>
                         Doesn't have an account yet?
-                        <Link to="register"> Sign Up</Link>
+                        <Link to="/register"> Sign Up</Link>
                       </small>
                     </p>
                     <hr />

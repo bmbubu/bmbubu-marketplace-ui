@@ -78,7 +78,7 @@ export const Register = () => {
                     <p className="text-muted">
                       <small>
                         Already have an account?
-                        <Link to="/"> Sign In</Link>
+                        <Link to="/login"> Sign In</Link>
                       </small>
                     </p>
                     <hr />
