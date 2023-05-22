@@ -1,0 +1,74 @@
+trigger:
+  batch: "true"
+  branches:
+    include:
+      - master
+
+pr:
+  - master
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build_Admin_App
+        displayName: "Build Web APP"
+        variables:
+          SourcePath: "src"
+          BuildPath: "build"
+
+        pool:
+          vmImage: ubuntu-latest
+
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish ARM Templates"
+            inputs:
+              targetPath: arm/
+              artifact: arm
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: "16.x"
+            displayName: "Install Node.js"
+
+          - script: |
+              pushd $(SourcePath)
+              npm install
+              npm run build
+              popd
+            displayName: "npm install and build"
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: "$(BuildPath)"
+              includeRootFolder: false
+              archiveType: "zip"
+              archiveFile: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
+              replaceExistingArchive: true
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              ArtifactName: "drop"
+              publishLocation: "Container"
+
+  - stage: Dev
+    condition: succeeded()
+    dependsOn: Build
+    jobs:
+      - deployment: Dev_Deployment
+        displayName: Deploy the admin web app to the dev environment
+        pool:
+          vmImage: "windows-latest"
+        environment: "web-app-dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: templates/azure-deployment-steps.yml
+                  parameters:
+                    azureConnectedService: "WebApp UI Deployment"
+                    resourceGroupName: "dev-us01-demo-ui"
+                    location: "westus"
+                    webSiteName: "myworkproduct-dev"
+                    serverfarmId: "/subscriptions/ad2a32f2-7a71-404f-9850-c0e370f38517/resourceGroups/dev-us01-app-plan-se3r/providers/Microsoft.Web/serverfarms/dev-us01-4fh7"

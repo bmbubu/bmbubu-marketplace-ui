@@ -1,0 +1,46 @@
+parameters:  
+  - name : azureConnectedService
+    type : string
+  - name : resourceGroupName
+    type : string
+  - name : location
+    type : string
+  - name : webSiteName
+    type : string
+  - name : serverfarmId
+    type : string
+
+steps:
+    - task: DownloadBuildArtifacts@0
+      displayName: 'Download Build Artifacts'
+      inputs:
+        artifactName: drop
+
+    - task: DownloadBuildArtifacts@0
+      displayName: 'Download ARM Template'
+      inputs:
+        artifactName: arm
+
+    - task: AzureResourceGroupDeployment@2
+      displayName: 'ARM Deployment: (azuredeploy.json)'
+      inputs: 
+        azureSubscription: '${{ parameters.azureConnectedService }}'
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: '${{ parameters.resourceGroupName }}'
+        location: "${{ parameters.location }}"
+        templateLocation: 'Linked artifact'
+        csmFile: '$(Pipeline.Workspace)/arm/azuredeploy.json'
+        overrideParameters: >-
+          -webSiteName "${{ parameters.webSiteName }}"
+          -deployLocation "${{ parameters.location }}"
+          -serverfarmId "${{ parameters.serverfarmId }}"
+        deploymentMode: 'Incremental'
+
+
+    - task: AzureWebApp@1
+      displayName: 'Azure Web App Deploy'
+      inputs:
+        azureSubscription: "${{ parameters.azureConnectedService }}"
+        appType: webApp
+        appName: '${{ parameters.webSiteName }}'
+        package: '$(System.ArtifactsDirectory)/**/*.zip'
