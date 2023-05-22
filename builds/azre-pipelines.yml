@@ -70,5 +70,5 @@ stages:
                     azureConnectedService: "WebApp UI Deployment"
                     resourceGroupName: "dev-us01-demo-ui"
                     location: "westus"
-                    webSiteName: "myworkproduct-dev"
+                    webSiteName: "myworkproduct-marketplace-dev"
                     serverfarmId: "/subscriptions/ad2a32f2-7a71-404f-9850-c0e370f38517/resourceGroups/dev-us01-app-plan-se3r/providers/Microsoft.Web/serverfarms/dev-us01-4fh7"
