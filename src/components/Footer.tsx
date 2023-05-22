@@ -1,6 +1,14 @@
-export const Footer = () => {
+import { NewsLetter } from "./NewsLetter";
+
+interface FooterProps {
+  includeNewsLetter: boolean;
+}
+
+export const Footer = (props: FooterProps) => {
+  const { includeNewsLetter } = props;
   return (
     <footer id="footer" className="footer">
+      {includeNewsLetter ? <NewsLetter /> : null}
       <div className="footer-top">
         <div className="container">
           <div className="row gy-4">

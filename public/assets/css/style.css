@@ -40,7 +40,7 @@ h6 {
 # Sections
 --------------------------------------------------------------*/
 section {
-  padding: 60px 0;
+  padding: 100px 0;
   overflow: hidden;
 }
 
@@ -456,7 +456,7 @@ section {
 .hero {
   width: 100%;
   height: 100vh;
-  background: url(../img/hero-bg.jpg) top center no-repeat;   
+  background: url(../images/hero-bg.jpg) top center no-repeat;   
   background-size: cover;
 }
 
@@ -990,6 +990,7 @@ section {
   color: #444444;
   font-weight: 600;
   font-family: "Poppins", sans-serif;
+  margin: 30px 0px 30px 0px;
 }
 
 .pricing .price sup {
@@ -1343,7 +1344,7 @@ section {
   margin: 40px 30px;
   box-shadow: 0px 0 20px rgba(1, 41, 112, 0.1);
   background: #fff;
-  min-height: 320px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -1381,6 +1382,7 @@ section {
 
 .testimonials .testimonial-item p {
   font-style: italic;
+  font-size: 14px;
   margin: 0 auto 15px auto;
 }
 
@@ -2705,3 +2707,9 @@ input:focus::-webkit-input-placeholder {
   transition: all 0.5s linear;
   width: 202px;
 } */
+
+.how-it-works-img {
+  height: 70px;
+  float: left;
+  margin-right: 10px;
+}
