@@ -43,7 +43,7 @@ export const AppNavbar = () => {
           </a>
         </li>
         <li>
-          <NavLink className="getstarted scrollto" to={"login"}>
+          <NavLink className="getstarted scrollto" to={"/login"}>
             Dashboard
           </NavLink>
         </li>
