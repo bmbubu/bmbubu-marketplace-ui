@@ -2,10 +2,10 @@ trigger:
   batch: "true"
   branches:
     include:
-      - master
+      - main
 
 pr:
-  - master
+  - main
 
 stages:
   - stage: Build
